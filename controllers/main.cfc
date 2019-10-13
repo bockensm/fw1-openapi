@@ -10,9 +10,15 @@ component accessors="true" {
 	 * Generates OpenAPI JSON and displays it with SwaggerUI
 	 */
 	public void function default(required struct rc) {
+		var configArguments = {};
+		var beanFactory = variables.Framework.getBeanFactory();
+		if (beanFactory.containsBean("OpenAPIConfig")) {
+			configArguments.configBean = variables.framework.getBeanFactory().getBean("OpenAPIConfig");
+		}
+
 		var generator = new subsystems.openAPI.models.OpenAPIGenerator();
 		generator.setRoutes( variables.framework.getRoutes() );
-		generator.configure({});
+		generator.configure(argumentCollection: configArguments);
 		rc.spec = generator.run();
 	}
 }

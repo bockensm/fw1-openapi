@@ -5,31 +5,20 @@ component accessors="true" {
 	public component function init() {
 		this.setPrefixes([ "/api" ]);
 
-		variables.info = {
-			"title": "",
-			"description": "",
-			"termsOfService": "",
-			"contact": {
-				"name": "",
-				"url": "",
-				"email": ""
-			},
-			"version": ""
-		};
-
 		return this;
 	}
 
 
 	/**
-	 * Takes a configuration struct and overlays it atop the default config
+	 * Configures parts of the OpenAPI spec JSON
 	 *
-	 * @config Structure containing configuration data
+	 * @config Component that contains configuration information
 	 */
-	public void function configure(required struct config) {
-		if (structKeyExists(config, "info")) {
-			structAppend(variables.info, config.info);
+	public void function configure(component configBean) {
+		if (!structKeyExists(arguments, "configBean")) {
+			arguments.configBean = new subsystems.openAPI.config.OpenApiConfig();
 		}
+		variables.info = arguments.configBean.getInfo();
 	}
 
 
