@@ -44,17 +44,27 @@ component accessors="true" {
 		if (
 			structKeyExists(arguments.response, "type")
 			&& isSimpleValue(arguments.response.type)
-			&& structKeyExists(arguments.response, "items")
-			&& isSimpleValue(arguments.response.items)
+			&& structKeyExists(arguments.response, "item")
+			&& isSimpleValue(arguments.response.item)
 		) {
+			var schema = {};
+			if (arguments.response.type == "object") {
+				schema = {
+					"$ref": arguments.response.item
+				};
+			}
+			else {
+				schema = {
+					"type": arguments.response.type,
+					"items": {
+						"$ref": arguments.response.item
+					}
+				};
+			}
+
 			normalizedData.content = {
 				"application/json": {
-					"schema": {
-						"type": arguments.response.type,
-						"items": {
-							"$ref": arguments.response.items
-						}
-					}
+					"schema": schema
 				}
 			};
 		}
