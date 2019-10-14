@@ -16,14 +16,19 @@ component accessors="true" {
 	}
 
 
-	public void function addPath(required string path, required string method, string summary="", array parameters=[], array tags=[]) {
+	public void function addPath(required string path, required string method, string summary="", array parameters=[], struct responses={}, struct requestBody={}, array tags=[]) {
 		param name="variables.paths['#arguments.path#']" default=createObject("java", "java.util.LinkedHashMap").init();
 
 		variables.paths[ arguments.path ][ arguments.method ] = {
 			"summary": arguments.summary,
 			"parameters": arguments.parameters,
+			"responses": arguments.responses,
 			"tags": arguments.tags
 		};
+
+		if (!structIsEmpty(arguments.requestBody)) {
+			variables.paths[ arguments.path ][ arguments.method ][ "requestBody" ] = arguments.requestBody;
+		}
 	}
 
 
@@ -31,7 +36,8 @@ component accessors="true" {
 		var response = {
 			"openapi": this.getOpenAPIVersion(),
 			"info": new subsystems.openAPI.models.objects.Info( this.getInfo() ).generate(),
-			"paths": new subsystems.openAPI.models.objects.Paths( this.getPaths() ).generate()
+			"paths": new subsystems.openAPI.models.objects.Paths( this.getPaths() ).generate(),
+			"components": this.getComponents()
 		};
 
 		return response;
