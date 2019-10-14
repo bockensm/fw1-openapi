@@ -15,26 +15,33 @@ component accessors="true" {
 		var allowedRoutes = [];
 
 		for (var item in arguments.routes) {
-			// Exclude routes that start with $* because it can't be documented
-			if (reFindNoCase("^\$\*", structKeyList(item))) {
-				continue;
+			for (var routePattern in structKeyList(item)) {
+				// Exclude wildcard patterns because it can't be documented
+				if (routePattern.startsWith("$*") || routePattern == "*") {
+					continue;
+				}
+
+				// $RESOURCES is not yet supported
+				if (routePattern.startsWith("$RESOURCES")) {
+					continue;
+				}
+
+				// Since this supports multi-member structures, put a single struct
+				// back together and feed it to Route
+				var route = new subsystems.openAPI.models.Route({ "#routePattern#": item[routePattern] });
+
+				// Exclude any routes declared as part of this subsystem
+				if (reFindNoCase("^openAPI:", route.getSection())) {
+					continue;
+				}
+
+				// Ensure that the route matches at least one of the configured prefixes
+				if (!this.isRouteIncluded(path: route.getPath(), prefixes: arguments.prefixes)) {
+					continue;
+				}
+
+				arrayAppend(allowedRoutes, route);
 			}
-
-			var route = new subsystems.openAPI.models.Route(item);
-
-			// Exclude any routes declared as part of this subsystem
-			if (reFindNoCase("^openAPI:", route.getSection())) {
-				continue;
-			}
-
-
-
-			// Ensure that the route matches at least one of the configured prefixes
-			if (!this.isRouteIncluded(path: route.getPath(), prefixes: arguments.prefixes)) {
-				continue;
-			}
-
-			arrayAppend(allowedRoutes, route);
 		}
 
 		return allowedRoutes;
