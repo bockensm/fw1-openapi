@@ -40,7 +40,7 @@ component accessors="true" {
 		openAPIDocument.setInfo(variables.info);
 
 		for (var route in routes) {
-			var functions = controllerParser.parseFunctions(route.getSection())
+			var functions = controllerParser.parseFunctions(route.getSection());
 
 			// If the item declared in the route isn't included in the controller's
 			// items, skip it
@@ -50,25 +50,28 @@ component accessors="true" {
 
 			var introspectedFunction = new subsystems.openAPI.models.IntrospectedFunction(functions[ route.getItem() ]);
 
-			var constrainedPathParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
-			var unconstrainedPathParameters = route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
-			var queryParameters = introspectedFunction.getQueryParameters();
+			route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
+			route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
 
-			var parameters = [];
-			arrayAppend(parameters, constrainedPathParameters, true);
-			arrayAppend(parameters, unconstrainedPathParameters, true);
-			arrayAppend(parameters, queryParameters, true);
+			var parameters = introspectedFunction.getParameters();
+
+			responses = introspectedFunction.getResponses();
 
 			openAPIDocument.addPath(
 				path: route.getDisplayPath(),
 				method: route.getMethod(),
 				summary: introspectedFunction.getHint(),
 				parameters: parameters,
+				responses: responses,
+				requestBody: introspectedFunction.getRequestBody(),
 				tags: introspectedFunction.getTags()
 			);
 		}
 
 		var spec = openAPIDocument.generate();
+
+		// writeDump(spec);
+		// abort;
 
 		return spec;
 	}

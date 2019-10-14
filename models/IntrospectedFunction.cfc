@@ -11,8 +11,8 @@ component accessors="true" {
 	 * in the JavaDoc information for a given function. These are all
 	 * preceded by @param- in the JavaDoc.
 	 */
-	public array function getQueryParameters() {
-		return variables.data.queryParams;
+	public array function getParameters() {
+		return variables.data.parameters;
 	}
 
 
@@ -78,6 +78,21 @@ component accessors="true" {
 
 
 	/**
+	 * Returns any responses that are described in the function's JavaDoc
+	 *
+	 * @data Defined responses
+	 */
+	public struct function getResponses() {
+		return variables.data.responses;
+	}
+
+
+	public struct function getRequestBody() {
+		return variables.data.requestBody;
+	}
+
+
+	/**
 	 * Takes provided input that comes from the "functions" member of
 	 * `getControllerMetadata` and normalizes it to ensure all data that
 	 * may be needed is present and in a satisfactory state.
@@ -85,44 +100,94 @@ component accessors="true" {
 	 * @data Function information from introspection
 	 */
 	package struct function normalize(required struct data) {
-		param arguments.data.hint = "";
-		param arguments.data.tags = "[]";
+		var normalizedData = duplicate(arguments.data);
+		param normalizedData.hint = "";
+		param normalizedData.tags = "[]";
+		param normalizedData.responses = "";
+		param name="normalizedData['x-parameters']" default="";
 
-		if (isSimpleValue(arguments.data.tags) && isJSON(arguments.data.tags)) {
-			arguments.data.tags = deserializeJSON(arguments.data.tags);
+		var returnData = {
+			"hint": normalizedData.hint,
+			"parameters": [],
+			"responses": this.parseResponses(data: normalizedData),
+			"requestBody": {},
+			"tags": []
+		};
+
+		if (isSimpleValue(normalizedData.tags) && isJSON(normalizedData.tags)) {
+			returnData.tags = deserializeJSON(normalizedData.tags);
 		}
 
-		arguments.data.queryParams = [];
-		arguments.data.pathParams = [];
+		var queryParameters = this.parseParamsByType(
+			data: normalizedData,
+			type: "query"
+		);
+		arrayAppend(returnData.parameters, queryParameters, true);
 
-		// Normalize data for @param- entries
+		var pathParameters = this.parseParamsByType(
+			data: normalizedData,
+			type: "path"
+		);
+		arrayAppend(returnData.parameters, pathParameters, true);
+
+		if (len(normalizedData["x-parameters"])) {
+			var requestBodyFileParser = new subsystems.openAPI.models.parsers.RequestBodyFileParser();
+			returnData.requestBody = requestBodyFileParser.parse(
+				schemaFile: normalizedData["x-parameters"]
+			);
+		}
+
+		return returnData;
+	}
+
+
+	/**
+	 * Finds declared parameters by a specified type. If the parameter is declared
+	 * in both x-parameters and also in the JavaDoc directly, what's in the JavaDoc
+	 * will override the schema file declaration if the types are the same.
+	 *
+	 * @data Introspected function data
+	 * @type Which type of parameter to parse
+	 */
+	package array function parseParamsByType(required struct data, required string type) {
+		var parameters = [];
+
 		for (var key in arguments.data) {
 			if (!reFindNoCase("^param-", key)) {
 				continue;
 			}
 
-			var paramName = lCase(listRest(key, "-"));
-
-			if (!isJSON(arguments.data[key])) {
-				var normalizedParam = this.normalizeParam(name: paramName);
-			}
-			else {
-				var params = deserializeJSON( arguments.data[key] );
-
-				var normalizedParam = this.normalizeParam(name: paramName, argumentCollection: params);
-				normalizedParam["description"] = normalizedParam.hint;
-				structDelete(normalizedParam, "hint");
-			}
-
-			if (normalizedParam.in == "query") {
-				arrayAppend(arguments.data.queryParams, normalizedParam);
-			}
-			else if (normalizedParam.in == "path") {
-				arrayAppend(arguments.data.pathParams, normalizedParam);
+			var parameter = this.parseParam(parameter: key, data: arguments.data[key]);
+			if (parameter.in == arguments.type) {
+				arrayAppend(parameters, parameter);
 			}
 		}
 
-		return arguments.data;
+		return parameters;
+	}
+
+
+	/**
+	 * Parses and normalizes a @param- line from the JavaDoc block
+	 *
+	 * @parameter Raw string declared as a parameter
+	 * @data Corresponding parameter data from the JavaDoc
+	 */
+	package struct function parseParam(required string parameter, required string data) {
+		var paramName = lCase(listRest(parameter, "-"));
+
+		if (!isJSON(arguments.data)) {
+			var normalizedParam = this.normalizeParam(name: paramName);
+		}
+		else {
+			var params = deserializeJSON(arguments.data);
+
+			var normalizedParam = this.normalizeParam(name: paramName, argumentCollection: params);
+			normalizedParam["description"] = normalizedParam.hint;
+			structDelete(normalizedParam, "hint");
+		}
+
+		return normalizedParam;
 	}
 
 
@@ -148,6 +213,61 @@ component accessors="true" {
 				"type": data.type
 			};
 		}
+
+		return data;
+	}
+
+
+	package struct function parseResponses(required struct data) {
+		if (structKeyExists(arguments.data, "responses")) {
+			if (!isSimpleValue(arguments.data.responses)) {
+				// TODO: Log warning
+				return {};
+			}
+
+			if (len(arguments.data.responses)) {
+				var responseFileParser = new subsystems.openAPI.models.parsers.ResponseFileParser();
+				return responseFileParser.parse(arguments.data.responses);
+			}
+		}
+
+		var responses = createObject("java", "java.util.LinkedHashMap").init();
+
+		// Normalize data for @param- entries
+		for (var key in arguments.data) {
+			if (!reFindNoCase("^response-", key)) {
+				continue;
+			}
+
+			var response = this.parseResponse(parameter: key, data: arguments.data[key]);
+			if (!structIsEmpty(response)) {
+				var statusCode = response.statusCode;
+				structDelete(response, "statusCode");
+				responses[statusCode] = response;
+			}
+		}
+
+		return responses;
+	}
+
+
+	package struct function parseResponse(required string parameter, required string data) {
+		if (!isJSON(arguments.data)) {
+			return {};
+		}
+
+		var statusCode = lCase(listRest(parameter, "-"));
+		var params = deserializeJSON(arguments.data);
+
+		return this.normalizeResponse(statusCode: statusCode, argumentCollection: params);
+	}
+
+
+	package struct function normalizeResponse() {
+		var data = duplicate(arguments);
+
+		param data.description = "";
+		param data.content = "";
 
 		return data;
 	}
