@@ -15,12 +15,19 @@ component accessors="true" {
 		var allowedRoutes = [];
 
 		for (var item in arguments.routes) {
+			// Exclude routes that start with $* because it can't be documented
+			if (reFindNoCase("^\$\*", structKeyList(item))) {
+				continue;
+			}
+
 			var route = new subsystems.openAPI.models.Route(item);
 
 			// Exclude any routes declared as part of this subsystem
 			if (reFindNoCase("^openAPI:", route.getSection())) {
 				continue;
 			}
+
+
 
 			// Ensure that the route matches at least one of the configured prefixes
 			if (!this.isRouteIncluded(path: route.getPath(), prefixes: arguments.prefixes)) {
