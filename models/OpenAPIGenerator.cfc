@@ -18,7 +18,9 @@ component accessors="true" {
 		if (!structKeyExists(arguments, "configBean")) {
 			arguments.configBean = new subsystems.openAPI.config.OpenApiConfig();
 		}
+
 		variables.info = arguments.configBean.getInfo();
+		variables.componentSchemaFolder = arguments.configBean.getComponentSchemaFolder();
 	}
 
 
@@ -67,6 +69,9 @@ component accessors="true" {
 				tags: introspectedFunction.getTags()
 			);
 		}
+
+		var components = new subsystems.openAPI.models.objects.Components(variables.componentSchemaFolder).generate();
+		openAPIDocument.setComponents(components);
 
 		var spec = openAPIDocument.generate();
 

@@ -36,7 +36,8 @@ component accessors="true" {
 		var response = {
 			"openapi": this.getOpenAPIVersion(),
 			"info": new subsystems.openAPI.models.objects.Info( this.getInfo() ).generate(),
-			"paths": new subsystems.openAPI.models.objects.Paths( this.getPaths() ).generate()
+			"paths": new subsystems.openAPI.models.objects.Paths( this.getPaths() ).generate(),
+			"components": this.getComponents()
 		};
 
 		return response;

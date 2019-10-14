@@ -52,7 +52,7 @@ component accessors="true" {
 					"schema": {
 						"type": arguments.response.type,
 						"items": {
-							"$ref": arguments.responses.items
+							"$ref": arguments.response.items
 						}
 					}
 				}
