@@ -55,11 +55,19 @@ component accessors="true" {
 			}
 
 			var introspectedFunction = new subsystems.openAPI.models.IntrospectedFunction(functions[ route.getItem() ]);
-
-			route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
-			route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
-
 			var parameters = introspectedFunction.getParameters();
+
+			var constrainedParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
+			parameters = this.addParametersIfNotPresent(
+				existingParameters: parameters,
+				newParameters: constrainedParameters
+			);
+
+			var unconstrainedParameters = route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
+			parameters = this.addParametersIfNotPresent(
+				existingParameters: parameters,
+				newParameters: unconstrainedParameters
+			);
 
 			responses = introspectedFunction.getResponses();
 
@@ -79,9 +87,38 @@ component accessors="true" {
 
 		var spec = openAPIDocument.generate();
 
-		// writeDump(spec);
-		// abort;
-
 		return spec;
+	}
+
+
+	/**
+	 * Ensures that a constrained/unconstrained parameter derived from
+	 * the route exists in the parameters described in the JavaDoc
+	 * @existingParameters The existing parameters we know about
+	 * @newParameters Any new parameters we need to ensure exist in th array
+	 */
+	package array function addParametersIfNotPresent(required array existingParameters, array newParameters) {
+		if (arrayLen(arguments.newParameters) == 0) {
+			return arguments.existingParameters;
+		}
+
+		var parameters = duplicate(arguments.existingParameters);
+
+		for (var newParameter in arguments.newParameters) {
+			var newParameterFound = false;
+
+			for (var existingParameter in parameters) {
+				if (existingParameter.name == newParameter.name) {
+					newParameterFound = true;
+					break;
+				}
+			}
+
+			if (!newParameterFound) {
+				arrayAppend(parameters, newParameter);
+			}
+		}
+
+		return parameters;
 	}
 }
