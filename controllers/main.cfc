@@ -18,6 +18,7 @@ component accessors="true" {
 
 		var generator = new subsystems.openAPI.models.OpenAPIGenerator();
 		generator.setRoutes( variables.framework.getRoutes() );
+		generator.setResourceRouteTemplates( variables.framework.getResourceRouteTemplates() );
 		generator.configure(argumentCollection: configArguments);
 		rc.spec = generator.run();
 	}

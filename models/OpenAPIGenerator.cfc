@@ -1,6 +1,7 @@
 component accessors="true" {
 	property prefixes;
 	property routes;
+	property resourceRouteTemplates;
 
 	public component function init() {
 		this.setPrefixes([ "/api" ]);
@@ -30,7 +31,10 @@ component accessors="true" {
 	 * the declared routes
 	 */
 	public struct function run() {
-		var routeParser = new subsystems.openAPI.models.parsers.RouteParser();
+		var routeParser = new subsystems.openAPI.models.parsers.RouteParser(
+			templates: this.getResourceRouteTemplates()
+		);
+
 		var routes = routeParser.parseRoutes(
 			routes: this.getRoutes(),
 			prefixes: this.getPrefixes()
