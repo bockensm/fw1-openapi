@@ -42,7 +42,7 @@ component accessors="true" {
 				}
 
 				// Ensure that the route matches at least one of the configured prefixes
-				if (!this.isRouteIncluded(path: route.getPath(), prefixes: arguments.prefixes)) {
+				if (!this.hasAllowedPrefix(path: route.getPath(), prefixes: arguments.prefixes)) {
 					continue;
 				}
 
@@ -61,7 +61,7 @@ component accessors="true" {
 	 * @path A single route URL
 	 * @prefixes Array of prefixes for routes that we want to document in SwaggerUI
 	 */
-	package boolean function isRouteIncluded(required string path, array prefixes=[]) {
+	package boolean function hasAllowedPrefix(required string path, array prefixes=[]) {
 		if (arrayLen(arguments.prefixes) == 0) {
 			return true;
 		}
