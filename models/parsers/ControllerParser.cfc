@@ -13,7 +13,18 @@ component accessors="true" {
 	 * @controller The name of the FW/1 controller
 	 */
 	public function parseFunctions(required string controller) {
-		var metadata = this.getMetadata(controller: controller);
+		try {
+			var metadata = this.getMetadata(controller: controller);
+		}
+		catch (any exception) {
+			if (structKeyExists(exception, "missingFileName")) {
+				return {};
+			}
+			else {
+				rethrow;
+			}
+		}
+
 		var functions = metadata.functions;
 
 		var map = {};
