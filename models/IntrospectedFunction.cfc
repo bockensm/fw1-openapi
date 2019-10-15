@@ -117,6 +117,9 @@ component accessors="true" {
 		if (isSimpleValue(normalizedData.tags) && isJSON(normalizedData.tags)) {
 			returnData.tags = deserializeJSON(normalizedData.tags);
 		}
+		else if (isArray(normalizedData.tags)) {
+			returnData.tags = duplicate(normalizedData.tags);
+		}
 
 		var queryParameters = this.parseParamsByType(
 			data: normalizedData,
