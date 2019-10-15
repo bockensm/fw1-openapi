@@ -4,7 +4,6 @@ component accessors="true" {
 	property resourceRouteTemplates;
 
 	public component function init() {
-		this.setPrefixes([ "/api" ]);
 
 		return this;
 	}
@@ -22,6 +21,7 @@ component accessors="true" {
 
 		variables.info = arguments.configBean.getInfo();
 		variables.componentSchemaFolder = arguments.configBean.getComponentSchemaFolder();
+		this.setPrefixes( arguments.configBean.getPrefixes() );
 	}
 
 

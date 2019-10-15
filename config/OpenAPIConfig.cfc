@@ -1,6 +1,7 @@
 component accessors="true" {
 	property Info;
 	property name="ComponentSchemaFolder" default="/components/schemas/";
+	property Prefixes;
 
 	public component function init(string customConfigPath="") {
 		var config = {};
@@ -18,6 +19,13 @@ component accessors="true" {
 
 		if (structKeyExists(config, "componentSchemaFolder")) {
 			this.setComponentSchemaFolder(config.componentSchemaFolder);
+		}
+
+		if (structKeyExists(config, "prefixes")) {
+			this.setPrefixes(config.prefixes);
+		}
+		else {
+			this.setPrefixes([ "/api" ]);
 		}
 
 		return this;
