@@ -4,6 +4,7 @@ component accessors="true" {
 	property method;
 	property path;
 	property displayPath;
+	property subsystem;
 
 	public component function init(required struct route) {
 		this.parseRoute(arguments.route);
@@ -24,6 +25,12 @@ component accessors="true" {
 		var action = arguments.route[path];
 		var section = listFirst(action, "/");
 		var item = listGetAt(action, 2, "/");
+		var subsystem = "";
+
+		if (listLen(section, ":") > 1) {
+			subsystem = listFirst(section, ":");
+			section = listRest(section, ":");
+		}
 
 		// GET until proven otherwise
 		var method = "get";
@@ -39,6 +46,7 @@ component accessors="true" {
 		this.setMethod(method);
 		this.setPath(path);
 		this.setDisplayPath(path);
+		this.setSubsystem(subsystem);
 	}
 
 

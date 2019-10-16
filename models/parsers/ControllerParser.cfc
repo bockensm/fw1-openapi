@@ -11,10 +11,14 @@ component accessors="true" {
 	 * in a provided controller.
 	 *
 	 * @controller The name of the FW/1 controller
+	 * @subsystem The name of the FW/1 subsystem the controller is in
 	 */
-	public function parseFunctions(required string controller) {
+	public function parseFunctions(required string controller, string subsystem="") {
 		try {
-			var metadata = this.getMetadata(controller: controller);
+			var metadata = this.getMetadata(
+				controller: arguments.controller,
+				subsystem: arguments.subsystem
+			);
 		}
 		catch (any exception) {
 			if (structKeyExists(exception, "missingFileName")) {
@@ -41,10 +45,16 @@ component accessors="true" {
 	 * first, and gets the metadata if it's not there.
 	 *
 	 * @controller The name of the FW/1 controller
+	 * @subsystem The name of the FW/1 subsystem the controller is in
 	 */
-	package struct function getMetadata(required string controller) {
+	package struct function getMetadata(required string controller, string subsystem="") {
+		var controllerDotPath = "controllers.#arguments.controller#";
+		if (len(arguments.subsystem)) {
+			controllerDotPath = "subsystems.#arguments.subsystem#.#controllerDotPath#";
+		}
+
 		if (!structKeyExists(variables.metadataCache, arguments.controller)) {
-			variables.metadataCache[ arguments.controller ] = getComponentMetadata("controllers.#arguments.controller#");
+			variables.metadataCache[ arguments.controller ] = getComponentMetadata(controllerDotPath);
 		}
 
 		return variables.metadataCache[ arguments.controller ];

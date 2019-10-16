@@ -46,7 +46,10 @@ component accessors="true" {
 		openAPIDocument.setInfo(variables.info);
 
 		for (var route in routes) {
-			var functions = controllerParser.parseFunctions(route.getSection());
+			var functions = controllerParser.parseFunctions(
+				controller: route.getSection(),
+				subsystem: route.getSubsystem()
+			);
 
 			// If the item declared in the route isn't included in the controller's
 			// items, skip it

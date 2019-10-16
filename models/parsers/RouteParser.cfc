@@ -37,7 +37,7 @@ component accessors="true" {
 				var route = new subsystems.openAPI.models.Route({ "#routePattern#": item[routePattern] });
 
 				// Exclude any routes declared as part of this subsystem
-				if (reFindNoCase("^openAPI:", route.getSection())) {
+				if (route.getSubsystem() == "openAPI") {
 					continue;
 				}
 

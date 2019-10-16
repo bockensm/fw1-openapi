@@ -76,6 +76,17 @@ component extends="testbox.system.BaseSpec" {
 				expect(parsedRoutes).toBeArray();
 				expect(parsedRoutes).toHaveLength(2);
 			});
+
+			it("supports a subsystem route", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$GET/api/cats": "/api:cats/index" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).notToBeEmpty();
+				expect(parsedRoutes[1].getSection()).toBe("cats");
+				expect(parsedRoutes[1].getSubsystem()).toBe("api");
+			});
 		});
 
 		describe("Invalid Route Tests", function() {
