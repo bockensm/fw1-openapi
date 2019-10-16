@@ -171,6 +171,21 @@ component extends="testbox.system.BaseSpec" {
 				expect(parsedRoutes).toBeArray();
 				expect(parsedRoutes).toHaveLength(14);
 			});
+
+			it("supports $RESOURCES for a subsystem", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{
+						"$RESOURCES": {
+							resources: "cats,mice",
+							subsystem: "api"
+						}
+					}
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(14);
+				expect(parsedRoutes[1].getSubsystem()).toBe("api");
+			});
 		});
 	}
 }

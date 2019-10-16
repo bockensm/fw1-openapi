@@ -170,6 +170,10 @@ component accessors="true" {
 
 				var resourceData = item[routePattern];
 				var route = this.normalizeResourceRoute(data: resourceData);
+				var subsystem = route.subsystem;
+				if (len(subsystem)) {
+					subsystem &= ":";
+				}
 
 				for (var resource in route.resources) {
 					for (var method in route.methods) {
@@ -191,7 +195,7 @@ component accessors="true" {
 									uri &= template.routeSuffix;
 								}
 
-								arrayAppend(queue, { "#uri#": "/#resource#/#method#"});
+								arrayAppend(queue, { "#uri#": "/#subsystem##resource#/#method#"});
 							}
 						}
 					}
