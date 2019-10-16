@@ -90,6 +90,15 @@ component extends="testbox.system.BaseSpec" {
 		});
 
 		describe("Invalid Route Tests", function() {
+			it("ignores routes with an invalid method", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$INVALID/api/cats": "/cats/index" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toBeEmpty();
+			});
+
 			it("ignores $* routes", function() {
 				var parsedRoutes = application.routeParser.parseRoutes([
 					{ "$*/api/cats": "/cats/index" }

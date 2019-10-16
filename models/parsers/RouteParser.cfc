@@ -36,6 +36,10 @@ component accessors="true" {
 				// back together and feed it to Route
 				var route = new subsystems.openAPI.models.Route({ "#routePattern#": item[routePattern] });
 
+				if (!this.isValidMethod(method: route.getMethod())) {
+					continue;
+				}
+
 				// Exclude any routes declared as part of this subsystem
 				if (route.getSubsystem() == "openAPI") {
 					continue;
@@ -73,6 +77,20 @@ component accessors="true" {
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Determines whether or not a provided method is something we can document
+	 * with SwaggerUI
+	 * @method The HTTP verb to test
+	 */
+	package boolean function isValidMethod(required string method) {
+		var allowedMethods = [
+			"GET", "POST", "PUT", "PATCH", "DELETE"
+		];
+
+		return arrayFindNoCase(allowedMethods, arguments.method) > 0;
 	}
 
 
