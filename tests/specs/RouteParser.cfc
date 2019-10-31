@@ -87,6 +87,108 @@ component extends="testbox.system.BaseSpec" {
 				expect(parsedRoutes[1].getSection()).toBe("cats");
 				expect(parsedRoutes[1].getSubsystem()).toBe("api");
 			});
+
+			it("supports routes with multiple constrained parameters", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/{id:[0-9]+}/toys/{toyID:[0-9]+}": "/api:cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
+
+				var route = parsedRoutes[1];
+				var functions = controllerParser.parseFunctions(
+					controller: route.getSection(),
+					subsystem: route.getSubsystem()
+				);
+
+				var introspectedFunction = new subsystems.openapi.models.IntrospectedFunction(functions[ route.getItem() ]);
+				var constrainedParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
+
+				expect(constrainedParameters).tobeArray();
+				expect(constrainedParameters).toHaveLength(2);
+			});
+
+			it("supports routes with multiple unconstrained parameters", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/:id/toys/:toyID": "/api:cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
+
+				var route = parsedRoutes[1];
+				var functions = controllerParser.parseFunctions(
+					controller: route.getSection(),
+					subsystem: route.getSubsystem()
+				);
+
+				var introspectedFunction = new subsystems.openapi.models.IntrospectedFunction(functions[ route.getItem() ]);
+				var unconstrainedParameters = route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
+
+				expect(unconstrainedParameters).tobeArray();
+				expect(unconstrainedParameters).toHaveLength(2);
+			});
+
+			it("supports routes with a mix of constrained and unconstrained parameters (first one is constrained)", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/{id:[0-9]+}/toys/:toyID": "/api:cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
+
+				var route = parsedRoutes[1];
+				var functions = controllerParser.parseFunctions(
+					controller: route.getSection(),
+					subsystem: route.getSubsystem()
+				);
+
+				var introspectedFunction = new subsystems.openapi.models.IntrospectedFunction(functions[ route.getItem() ]);
+				var constrainedParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
+				expect(constrainedParameters).toBeArray();
+				expect(constrainedParameters).toHaveLength(1);
+				expect(constrainedParameters[1].name).toBe("id");
+
+				var unconstrainedParameters = route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
+				expect(unconstrainedParameters).tobeArray();
+				expect(unconstrainedParameters).toHaveLength(1);
+				expect(unconstrainedParameters[1].name).toBe("toyID");
+			});
+
+			it("supports routes with a mix of constrained and unconstrained parameters (first one is unonstrained)", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/:id/toys/{toyID:[0-9]+}": "/api:cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
+
+				var route = parsedRoutes[1];
+				var functions = controllerParser.parseFunctions(
+					controller: route.getSection(),
+					subsystem: route.getSubsystem()
+				);
+
+				var introspectedFunction = new subsystems.openapi.models.IntrospectedFunction(functions[ route.getItem() ]);
+				var constrainedParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
+				expect(constrainedParameters).toBeArray();
+				expect(constrainedParameters).toHaveLength(1);
+				expect(constrainedParameters[1].name).toBe("toyID");
+
+				var unconstrainedParameters = route.parseUnconstrainedPathParameters(introspectedFunction: introspectedFunction);
+				expect(unconstrainedParameters).tobeArray();
+				expect(unconstrainedParameters).toHaveLength(1);
+				expect(unconstrainedParameters[1].name).toBe("id");
+			});
 		});
 
 		describe("Invalid Route Tests", function() {

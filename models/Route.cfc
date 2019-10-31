@@ -58,7 +58,7 @@ component accessors="true" {
 	public array function parseConstrainedPathParameters(required component introspectedFunction) {
 		var parsedParameters = [];
 
-		var regex = "\{([^:]+).*}";
+		var regex = "\{([^:]+)[^\}]*}";
 		var parameters = reMatchNoCase(regex, this.getPath());
 
 		for (var parameter in parameters) {
