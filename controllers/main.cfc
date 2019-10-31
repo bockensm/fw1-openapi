@@ -16,7 +16,7 @@ component accessors="true" {
 			configArguments.configBean = variables.framework.getBeanFactory().getBean("OpenAPIConfig");
 		}
 
-		var generator = new subsystems.openAPI.models.OpenAPIGenerator();
+		var generator = new subsystems.openapi.models.OpenAPIGenerator();
 		generator.setRoutes( variables.framework.getRoutes() );
 		generator.setResourceRouteTemplates( variables.framework.getResourceRouteTemplates() );
 		generator.configure(argumentCollection: configArguments);

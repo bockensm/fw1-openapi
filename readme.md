@@ -5,7 +5,7 @@ browser-based documentation portal/playground for your FW/1 API.
 
 ## Usage
 * Clone this repository inside the `subsystems` folder of your FW/1 application
-* Declare a route in `variables.framework.routes`, e.g. `{ "$GET/api": "/openAPI:main/default" }`
+* Declare a route in `variables.framework.routes`, e.g. `{ "$GET/api": "/openapi:main/default" }`
 * Configure SwaggerUI (more information to come later)
 * Hit the declared route in the browser and watch the magic happen
 

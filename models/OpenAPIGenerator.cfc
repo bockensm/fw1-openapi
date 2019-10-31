@@ -16,7 +16,7 @@ component accessors="true" {
 	 */
 	public void function configure(component configBean) {
 		if (!structKeyExists(arguments, "configBean")) {
-			arguments.configBean = new subsystems.openAPI.config.OpenApiConfig();
+			arguments.configBean = new subsystems.openapi.config.OpenApiConfig();
 		}
 
 		variables.info = arguments.configBean.getInfo();
@@ -31,7 +31,7 @@ component accessors="true" {
 	 * the declared routes
 	 */
 	public struct function run() {
-		var routeParser = new subsystems.openAPI.models.parsers.RouteParser(
+		var routeParser = new subsystems.openapi.models.parsers.RouteParser(
 			templates: this.getResourceRouteTemplates()
 		);
 
@@ -40,9 +40,9 @@ component accessors="true" {
 			prefixes: this.getPrefixes()
 		);
 
-		var controllerParser = new subsystems.openAPI.models.parsers.ControllerParser();
+		var controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
 
-		var openAPIDocument = new subsystems.openAPI.models.objects.Document();
+		var openAPIDocument = new subsystems.openapi.models.objects.Document();
 		openAPIDocument.setInfo(variables.info);
 
 		for (var route in routes) {
@@ -57,7 +57,7 @@ component accessors="true" {
 				continue;
 			}
 
-			var introspectedFunction = new subsystems.openAPI.models.IntrospectedFunction(functions[ route.getItem() ]);
+			var introspectedFunction = new subsystems.openapi.models.IntrospectedFunction(functions[ route.getItem() ]);
 			var parameters = introspectedFunction.getParameters();
 
 			var constrainedParameters = route.parseConstrainedPathParameters(introspectedFunction: introspectedFunction);
@@ -85,7 +85,7 @@ component accessors="true" {
 			);
 		}
 
-		var components = new subsystems.openAPI.models.objects.Components(variables.componentSchemaFolder).generate();
+		var components = new subsystems.openapi.models.objects.Components(variables.componentSchemaFolder).generate();
 		openAPIDocument.setComponents(components);
 
 		var spec = openAPIDocument.generate();

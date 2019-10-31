@@ -134,7 +134,7 @@ component accessors="true" {
 		arrayAppend(returnData.parameters, pathParameters, true);
 
 		if (len(normalizedData["x-parameters"])) {
-			var requestBodyFileParser = new subsystems.openAPI.models.parsers.RequestBodyFileParser();
+			var requestBodyFileParser = new subsystems.openapi.models.parsers.RequestBodyFileParser();
 			returnData.requestBody = requestBodyFileParser.parse(
 				schemaFile: normalizedData["x-parameters"]
 			);
@@ -229,7 +229,7 @@ component accessors="true" {
 			}
 
 			if (len(arguments.data.responses)) {
-				var responseFileParser = new subsystems.openAPI.models.parsers.ResponseFileParser();
+				var responseFileParser = new subsystems.openapi.models.parsers.ResponseFileParser();
 				return responseFileParser.parse(arguments.data.responses);
 			}
 		}

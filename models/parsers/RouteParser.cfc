@@ -34,7 +34,7 @@ component accessors="true" {
 
 				// Since this supports multi-member structures, put a single struct
 				// back together and feed it to Route
-				var route = new subsystems.openAPI.models.Route({ "#routePattern#": item[routePattern] });
+				var route = new subsystems.openapi.models.Route({ "#routePattern#": item[routePattern] });
 
 				if (!this.isValidMethod(method: route.getMethod())) {
 					continue;

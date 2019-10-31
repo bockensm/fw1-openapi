@@ -3,7 +3,7 @@ component extends="testbox.system.BaseSpec" {
 /*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll() {
-		application.controllerParser = new subsystems.openAPI.models.parsers.ControllerParser();
+		application.controllerParser = new subsystems.openapi.models.parsers.ControllerParser();
 	}
 
 	function afterAll() {
