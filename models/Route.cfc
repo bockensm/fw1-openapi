@@ -58,7 +58,7 @@ component accessors="true" {
 	public array function parseConstrainedPathParameters(required component introspectedFunction) {
 		var parsedParameters = [];
 
-		var regex = "\{([^:]+)[^\}]*}";
+		var regex = "\{([^:]+):([^\}]+)}";
 		var parameters = reMatchNoCase(regex, this.getPath());
 
 		for (var parameter in parameters) {
@@ -71,12 +71,36 @@ component accessors="true" {
 				parameter: actualParameter
 			);
 
-			arrayAppend(parsedParameters, {
+			var parameterData = {
 				"name": actualParameter,
 				"in": "path",
 				"required": true,
 				"description": description
-			});
+			};
+
+			// Look for a numeric constraint. Otherwise, assume string data is OK.
+			var parameterConstraint = reReplaceNoCase(parameter, regex, "\2");
+			if (find("[0-9]", parameterConstraint)) {
+				parameterData["schema"] = {
+					"type": "integer",
+					"minimum": 0
+				};
+
+				if (!reFind("\+$", parameterConstraint)) {
+					parameterData["schema"]["maximum"] = 9;
+					parameterData["description"] &= " (Integer between 0 and 9, inclusive)";
+				}
+				else {
+					parameterData["description"] &= "(Positive Integer)";
+				}
+			}
+			else {
+				parameterData["schema"] = {
+					"type": "string"
+				};
+			}
+
+			arrayAppend(parsedParameters, parameterData);
 		}
 
 		return parsedParameters;
