@@ -5,7 +5,6 @@ component accessors="true" {
 	property paths;
 	property components;
 	property security;
-	property tags;
 	property externalDocs;
 
 	public component function init() {
@@ -33,10 +32,13 @@ component accessors="true" {
 
 
 	public struct function generate() {
+		var tagsModel = new subsystems.openapi.models.objects.Tags();
+
 		var response = {
 			"openapi": this.getOpenAPIVersion(),
 			"info": new subsystems.openapi.models.objects.Info( this.getInfo() ).generate(),
 			"paths": new subsystems.openapi.models.objects.Paths( this.getPaths() ).generate(),
+			"tags":  tagsModel.extractFromPaths(paths: this.getPaths() ),
 			"components": this.getComponents()
 		};
 
