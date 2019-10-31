@@ -79,101 +79,6 @@ component extends="testbox.system.BaseSpec" {
 				expect(parsedRoutes[1].getSection()).toBe("cats");
 				expect(parsedRoutes[1].getSubsystem()).toBe("api");
 			});
-
-			it("supports routes with multiple constrained parameters", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$PATCH/api/cats/{id:[0-9]+}/toys/{toyID:[0-9]+}": "/cats/update/id/:id/toy/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray().toHaveLength(1);
-
-				var route = parsedRoutes[1];
-
-				var constrainedParameters = this.getConstrainedParameters(route: route);
-				expect(constrainedParameters).toBeArray().toHaveLength(2);
-			});
-
-			it("supports routes with multiple unconstrained parameters", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$PATCH/api/cats/:id/toys/:toyID": "/cats/update/id/:id/toy/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray().toHaveLength(1);
-
-				var route = parsedRoutes[1];
-
-				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
-				expect(unconstrainedParameters).toBeArray().toHaveLength(2);
-			});
-
-			it("supports routes with a mix of constrained and unconstrained parameters (first one is constrained)", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$PATCH/api/cats/{id:[0-9]+}/toys/:toyID": "/cats/update/id/:id/toy/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray();
-				expect(parsedRoutes).toHaveLength(1);
-
-				var route = parsedRoutes[1];
-
-				var constrainedParameters = this.getConstrainedParameters(route: route);
-				expect(constrainedParameters).toBeArray().toHaveLength(1);
-				expect(constrainedParameters[1].name).toBe("id");
-
-				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
-				expect(unconstrainedParameters).toBeArray().toHaveLength(1);
-				expect(unconstrainedParameters[1].name).toBe("toyID");
-			});
-
-			it("supports routes with a mix of constrained and unconstrained parameters (first one is unconstrained)", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$PATCH/api/cats/:id/toys/{toyID:[0-9]+}": "/cats/update/id/:id/toy/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray();
-				expect(parsedRoutes).toHaveLength(1);
-
-				var route = parsedRoutes[1];
-
-				var constrainedParameters = this.getConstrainedParameters(route: route);
-				expect(constrainedParameters).toBeArray().toHaveLength(1);
-				expect(constrainedParameters[1].name).toBe("toyID");
-
-				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
-				expect(unconstrainedParameters).toBeArray().toHaveLength(1);
-				expect(unconstrainedParameters[1].name).toBe("id");
-			});
-
-			it("correctly parses a numeric parameter constraint with an upper limit", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$GET/api/cats/{id:[0-9]}": "/cats/index/id/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray().toHaveLength(1);
-
-				var route = parsedRoutes[1];
-
-				var constrainedParameters = this.getConstrainedParameters(route: route);
-
-				expect(constrainedParameters).toBeArray().toHaveLength(1);
-				expect(constrainedParameters[1].schema.type).toBe("integer");
-				expect(constrainedParameters[1].schema).toHaveKey("maximum");
-			});
-
-			it("correctly parses a numeric parameter constraint with no upper limit", function() {
-				var parsedRoutes = application.routeParser.parseRoutes([
-					{ "$GET/api/cats/{id:[0-9]+}": "/cats/index/id/:id" }
-				]);
-
-				expect(parsedRoutes).toBeArray().toHaveLength(1);
-
-				var route = parsedRoutes[1];
-				var constrainedParameters = this.getConstrainedParameters(route: route);
-
-				expect(constrainedParameters).toBeArray().toHaveLength(1);
-				expect(constrainedParameters[1].schema.type).toBe("integer");
-				expect(constrainedParameters[1].schema).notToHaveKey("maximum");
-			});
 		});
 
 		describe("Invalid Route Tests", function() {
@@ -263,6 +168,103 @@ component extends="testbox.system.BaseSpec" {
 
 				expect(parsedRoutes).toBeArray().toHaveLength(14);
 				expect(parsedRoutes[1].getSubsystem()).toBe("api");
+			});
+		});
+
+		describe("Parameter Parsing Tests", function() {
+			it("supports routes with multiple constrained parameters", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/{id:[0-9]+}/toys/{toyID:[0-9]+}": "/cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray().toHaveLength(1);
+
+				var route = parsedRoutes[1];
+
+				var constrainedParameters = this.getConstrainedParameters(route: route);
+				expect(constrainedParameters).toBeArray().toHaveLength(2);
+			});
+
+			it("supports routes with multiple unconstrained parameters", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/:id/toys/:toyID": "/cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray().toHaveLength(1);
+
+				var route = parsedRoutes[1];
+
+				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
+				expect(unconstrainedParameters).toBeArray().toHaveLength(2);
+			});
+
+			it("supports routes with a mix of constrained and unconstrained parameters (first one is constrained)", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/{id:[0-9]+}/toys/:toyID": "/cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var route = parsedRoutes[1];
+
+				var constrainedParameters = this.getConstrainedParameters(route: route);
+				expect(constrainedParameters).toBeArray().toHaveLength(1);
+				expect(constrainedParameters[1].name).toBe("id");
+
+				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
+				expect(unconstrainedParameters).toBeArray().toHaveLength(1);
+				expect(unconstrainedParameters[1].name).toBe("toyID");
+			});
+
+			it("supports routes with a mix of constrained and unconstrained parameters (first one is unconstrained)", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$PATCH/api/cats/:id/toys/{toyID:[0-9]+}": "/cats/update/id/:id/toy/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray();
+				expect(parsedRoutes).toHaveLength(1);
+
+				var route = parsedRoutes[1];
+
+				var constrainedParameters = this.getConstrainedParameters(route: route);
+				expect(constrainedParameters).toBeArray().toHaveLength(1);
+				expect(constrainedParameters[1].name).toBe("toyID");
+
+				var unconstrainedParameters = this.getUnconstrainedParameters(route: route);
+				expect(unconstrainedParameters).toBeArray().toHaveLength(1);
+				expect(unconstrainedParameters[1].name).toBe("id");
+			});
+
+			it("correctly parses a numeric parameter constraint with an upper limit (i.e. [0-9])", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$GET/api/cats/{id:[0-9]}": "/cats/index/id/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray().toHaveLength(1);
+
+				var route = parsedRoutes[1];
+
+				var constrainedParameters = this.getConstrainedParameters(route: route);
+
+				expect(constrainedParameters).toBeArray().toHaveLength(1);
+				expect(constrainedParameters[1].schema.type).toBe("integer");
+				expect(constrainedParameters[1].schema).toHaveKey("maximum");
+			});
+
+			it("correctly parses a numeric parameter constraint with no upper limit (i.e. [0-9]+)", function() {
+				var parsedRoutes = application.routeParser.parseRoutes([
+					{ "$GET/api/cats/{id:[0-9]+}": "/cats/index/id/:id" }
+				]);
+
+				expect(parsedRoutes).toBeArray().toHaveLength(1);
+
+				var route = parsedRoutes[1];
+				var constrainedParameters = this.getConstrainedParameters(route: route);
+
+				expect(constrainedParameters).toBeArray().toHaveLength(1);
+				expect(constrainedParameters[1].schema.type).toBe("integer");
+				expect(constrainedParameters[1].schema).notToHaveKey("maximum");
 			});
 		});
 	}
